@@ -1,29 +1,31 @@
 <?
 class IQLFeiertage extends IPSModule {
-		
-	public function Create() {
-		//Never delete this line!
-		parent::Create();		
-		//These lines are parsed on Symcon Startup or Instance creation
-		//You cannot use variables here. Just static values.
+
+    public function Create() {
+        //Never delete this line!
+        parent::Create();
+        //These lines are parsed on Symcon Startup or Instance creation
+        //You cannot use variables here. Just static values.
         $this->RegisterPropertyString("country","D");
-		$this->RegisterPropertyString("area", "NI");
+        $this->RegisterPropertyString("area", "NI");
         $this->RegisterPropertyString("areaAT", "W");
         $this->RegisterPropertyString("timeframe","today");
+        $this->RegisterPropertyInteger("timerinterval",0);
         $this->RegisterTimer("UpdateTimer",0,"IQLFT_Update(\$_IPS['TARGET']);");
-	}
-	
-	public function ApplyChanges() {
-		//Never delete this line!
-		parent::ApplyChanges();
-		
-		$this->RegisterVariableBoolean("IsHoliday", "Is Holiday");
-		$this->RegisterVariableString("Holiday", "Feiertag");
+    }
+
+    public function ApplyChanges() {
+        //Never delete this line!
+        parent::ApplyChanges();
+
+        $this->RegisterVariableBoolean("IsHoliday", "Is Holiday");
+        $this->RegisterVariableString("Holiday", "Feiertag");
         $this->SetTimerInterval("UpdateTimer",$this->ReadPropertyInteger("timerinterval")*60*60*1000);
-		//$this->RegisterEventCyclic("UpdateTimer", "Automatische aktualisierung", 15);
+        // Set Hidden
+        IPS_SetHidden($this->GetIDForIdent("IsHoliday"),true);
         $this->Update();
-	}
-	
+    }
+
     private function GetFeiertag() {
         if($this->ReadPropertyString("timeframe") == "today") {
             $datum = date("Y-m-d",time());
@@ -60,7 +62,7 @@ class IQLFeiertage extends IPSModule {
             elseif ($datum[1].$datum[2] == '0106'
                 && ($bundesland == 'BW' || $bundesland == 'BY' || $bundesland == 'ST'))
             {
-                $status = 'Heilige Drei K�nige';
+                $status = 'Heilige Drei Könige';
             }
             elseif ($datum[1].$datum[2] == date("md",mktime(0,0,0,$easter_m,$easter_d-2,$datum[0])))
             {
@@ -98,7 +100,7 @@ class IQLFeiertage extends IPSModule {
             elseif ($datum[1].$datum[2] == '0815'
                 && ($bundesland == 'SL' || $bundesland == 'BY'))
             {
-                $status = 'Mari� Himmelfahrt';
+                $status = 'Mariä Himmelfahrt';
             }
             elseif ($datum[1].$datum[2] == '1003')
             {
@@ -117,7 +119,7 @@ class IQLFeiertage extends IPSModule {
             elseif ($datum[1].$datum[2] == strtotime("-11 days", strtotime("1 sunday", mktime(0,0,0,11,26,$datum[0])))
                 && $bundesland == 'SN')
             {
-                $status = 'Bu�- und Bettag';
+                $status = 'Buß- und Bettag';
             }
             elseif ($datum[1].$datum[2] == '1224')
             {
@@ -144,124 +146,120 @@ class IQLFeiertage extends IPSModule {
             {
                 $datum = date("Y-m-d", $datum);
             }
-            $datum = explode("-", $datum);
-
-            $datum[1] = str_pad($datum[1], 2, "0", STR_PAD_LEFT);
-            $datum[2] = str_pad($datum[2], 2, "0", STR_PAD_LEFT);
-
-            if (!checkdate($datum[1], $datum[2], $datum[0])) return false;
-
-            $datum_arr = getdate(mktime(0,0,0,$datum[1],$datum[2],$datum[0]));
-
-            $easter_d = date("d", easter_date($datum[0]));
-            $easter_m = date("m", easter_date($datum[0]));
-
-            $status = 'Arbeitstag';
-            if ($datum_arr['wday'] == 0 || $datum_arr['wday'] == 6) $status = 'Wochenende';
-
+            $datum = explode("-", $datum); 
+ 
+            $datum[1] = str_pad($datum[1], 2, "0", STR_PAD_LEFT); 
+            $datum[2] = str_pad($datum[2], 2, "0", STR_PAD_LEFT); 
+ 
+            if (!checkdate($datum[1], $datum[2], $datum[0])) return false; 
+ 
+            $datum_arr = getdate(mktime(0,0,0,$datum[1],$datum[2],$datum[0])); 
+ 
+            $easter_d = date("d", easter_date($datum[0])); 
+            $easter_m = date("m", easter_date($datum[0])); 
+ 
+            $status = 'Arbeitstag'; 
+            if ($datum_arr['wday'] == 0 || $datum_arr['wday'] == 6) $status = 'Wochenende'; 
+ 
             if ($datum[1].$datum[2] == '0101')
-            {
-                $status = 'Neujahr';
+            { 
+                $status = 'Neujahr'; 
             }
             elseif ($datum[1].$datum[2] == '0106')
-            {
-                $status = 'Heilige Drei K�nige';
+            { 
+                $status = 'Heilige Drei Könige'; 
             }
             elseif ($datum[1].$datum[2] == '0319' && ($bundesland == 'K' || $bundesland == 'ST' || $bundesland == 'T' || $bundesland == 'V'))
-            {
-                $status = 'Josef';
-            }
-            elseif ($datum[1].$datum[2] == $easter_m.$easter_d)
-            {
-                $status = 'Ostersonntag';
+            { 
+                $status = 'Josef'; 
+            } 
+                elseif ($datum[1].$datum[2] == $easter_m.$easter_d)
+            { 
+                $status = 'Ostersonntag'; 
             }
             elseif ($datum[1].$datum[2] == date("md",mktime(0,0,0,$easter_m,$easter_d+1,$datum[0])))
-            {
-                $status = 'Ostermontag';
+            { 
+                $status = 'Ostermontag'; 
             }
             elseif ($datum[1].$datum[2] == date("md",mktime(0,0,0,$easter_m,$easter_d+39,$datum[0])))
-            {
-                $status = 'Christi Himmelfahrt';
+            { 
+                $status = 'Christi Himmelfahrt'; 
             }
             elseif ($datum[1].$datum[2] == date("md",mktime(0,0,0,$easter_m,$easter_d+49,$datum[0])))
-            {
-                $status = 'Pfingstsonntag';
+            { 
+                $status = 'Pfingstsonntag'; 
             }
             elseif ($datum[1].$datum[2] == date("md",mktime(0,0,0,$easter_m,$easter_d+50,$datum[0])))
-            {
-                $status = 'Pfingstmontag';
+            { 
+                $status = 'Pfingstmontag'; 
             }
             elseif ($datum[1].$datum[2] == date("md",mktime(0,0,0,$easter_m,$easter_d+60,$datum[0])))
-            {
-                $status = 'Fronleichnam';
+            { 
+                $status = 'Fronleichnam'; 
             }
             elseif ($datum[1].$datum[2] == '0501')
-            {
-                $status = 'Erster Mai';
+            { 
+                $status = 'Erster Mai'; 
             }
             elseif ($datum[1].$datum[2] == '0504' && $bundesland == 'OOE')
-            {
-                $status = 'Florian';
+            { 
+                $status = 'Florian'; 
             }
             elseif ($datum[1].$datum[2] == '0815')
-            {
-                $status = 'Mari� Himmelfahrt';
+            { 
+                $status = 'Mariä Himmelfahrt'; 
             }
             elseif ($datum[1].$datum[2] == '0924' && $bundesland == 'S')
-            {
-                $status = 'Rupertitag';
+            { 
+                $status = 'Rupertitag'; 
             }
             elseif ($datum[1].$datum[2] == '1010' && $bundesland == 'K')
-            {
-                $status = 'Tag der Volksabstimmung';
+            { 
+                $status = 'Tag der Volksabstimmung'; 
             }
             elseif ($datum[1].$datum[2] == '1026')
-            {
-                $status = 'Nationalfeiertag';
+            { 
+                $status = 'Nationalfeiertag'; 
             }
             elseif ($datum[1].$datum[2] == '1101')
-            {
-                $status = 'Allerheiligen';
+            { 
+                $status = 'Allerheiligen'; 
             }
             elseif ($datum[1].$datum[2] == '1111' && $bundesland == 'B')
-            {
-                $status = 'Martini';
+            { 
+                $status = 'Martini'; 
             }
             elseif ($datum[1].$datum[2] == '1115' && ($bundesland == 'NOE' || $bundesland == 'W'))
-            {
-                $status = 'Leopoldi';
+            { 
+                $status = 'Leopoldi'; 
             }
             elseif ($datum[1].$datum[2] == '1208')
-            {
-                $status = 'Mari� Empf�ngnis';
+            { 
+                $status = 'Mariä Empfängnis'; 
             }
             elseif ($datum[1].$datum[2] == '1224')
-            {
-                $status = 'Heiliger Abend';
+            { 
+                $status = 'Heiliger Abend'; 
             }
             elseif ($datum[1].$datum[2] == '1225')
-            {
-                $status = 'Christtag';
+            { 
+                $status = 'Christtag'; 
             }
             elseif ($datum[1].$datum[2] == '1226')
-            {
-                $status = 'Stefanitag';
+            { 
+                $status = 'Stefanitag'; 
             }
-            return $status;
+            return $status; 
         }
     }
     public function Update() {
         $holiday = $this->GetFeiertag();
-        if(!IPS_GetObject($this->GetIDForIdent("IsHoliday"))['ObjectIsHidden']) {
-        	IPS_SetHidden($this->GetIDForIdent("IsHoliday"),true);
-        }
-		SetValue($this->GetIDForIdent("Holiday"), $holiday);
+        SetValue($this->GetIDForIdent("Holiday"), $holiday);
         if($holiday != "Arbeitstag" and $holiday != "Wochenende") {
             SetValue($this->GetIDForIdent("IsHoliday"), true);
         }
         else {
             SetValue($this->GetIDForIdent("IsHoliday"), false);
         }
-    }        
+    }
 }
-?>
