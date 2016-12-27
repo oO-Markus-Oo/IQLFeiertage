@@ -111,6 +111,10 @@ class IQLFeiertage extends IPSModule {
             {
                 $status = 'Reformationstag';
             }
+            elseif ($datum[0].$datum[1].$datum[2] == '20171031')
+            {
+                $status = 'Reformationstag 2017';
+            }
             elseif ($datum[1].$datum[2] == '1101'
                 && ($bundesland == 'BW' || $bundesland == 'BY' || $bundesland == 'NW' || $bundesland == 'RP' || $bundesland == 'SL'))
             {
