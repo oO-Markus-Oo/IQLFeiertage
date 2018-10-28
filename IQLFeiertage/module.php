@@ -107,13 +107,9 @@ class IQLFeiertage extends IPSModule {
                 $status = 'Tag der deutschen Einheit';
             }
             elseif ($datum[1].$datum[2] == '1031'
-                && ($bundesland == 'BB' || $bundesland == 'MV' || $bundesland == 'SN' || $bundesland == 'ST' || $bundesland == 'TH'))
+                && ($bundesland == 'BB' || $bundesland == 'MV' || $bundesland == 'SN' || $bundesland == 'ST' || $bundesland == 'TH' || $bundesland == 'HB' || $bundesland == 'HH' || $bundesland == 'SH' || $bundesland == 'NI'))
             {
                 $status = 'Reformationstag';
-            }
-            elseif ($datum[0].$datum[1].$datum[2] == '20171031')
-            {
-                $status = 'Reformationstag 2017';
             }
             elseif ($datum[1].$datum[2] == '1101'
                 && ($bundesland == 'BW' || $bundesland == 'BY' || $bundesland == 'NW' || $bundesland == 'RP' || $bundesland == 'SL'))
